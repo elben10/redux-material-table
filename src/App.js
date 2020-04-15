@@ -1,7 +1,9 @@
 import React, { Component, Fragment } from 'react';
+import { addRow, deleteRow, loadData, updateRow } from './actions';
 
 import AppBar from '@material-ui/core/AppBar';
 import Box from '@material-ui/core/Box';
+import { Button } from '@material-ui/core';
 import Container from '@material-ui/core/Container';
 import MaterialTable from 'material-table';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -17,6 +19,10 @@ const styles = theme => ({
 
 
 export class App extends Component {
+  componentDidMount() {
+    this.props.loadData(this.props.page);
+  }
+
   render() {
     const { classes } = this.props;
     return (
@@ -33,8 +39,31 @@ export class App extends Component {
               title="Table"
               columns={this.props.columns}
               data={this.props.rows}
+              editable={{
+                onRowAdd: newData =>
+                  new Promise((resolve, reject) => {
+                    resolve(this.props.addRow(newData));
+                  }),
+                onRowDelete: oldData =>
+                  new Promise((resolve, reject) => {
+                    resolve(
+                      this.props.deleteRow(oldData.id)
+                    );
+                  }),
+                onRowUpdate: (newData, oldData) =>
+                  new Promise((resolve, reject) => {
+                    resolve(this.props.updateRow(newData));
+                  })
+              }}
             >
             </MaterialTable>
+            <Button
+              color="primary"
+              variant="contained"
+              onClick={event => this.props.loadData(this.props.page)}
+            >
+              Load more data
+            </Button>
           </Box>
         </Container>
       </Fragment>
@@ -42,9 +71,17 @@ export class App extends Component {
   }
 }
 
-const mapStateToProps = (state, props) => ({
+const mapStateToProps = (state) => ({
   columns: state.table.columns,
-  rows: state.table.rows
+  rows: state.table.rows,
+  page: state.table.page,
 });
 
-export default connect(mapStateToProps)(withStyles(styles)(App));
+const mapDispatchToProps = (dispatch) => ({
+  loadData: (page) => dispatch(loadData(page)),
+  addRow: (data) => dispatch(addRow(data)),
+  deleteRow: (id) => dispatch(deleteRow(id)),
+  updateRow: (data) => dispatch(updateRow(data))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(App));
