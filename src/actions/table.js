@@ -48,11 +48,11 @@ export const addRow = (data) => {
     };
 };
 
-export const deleteRow = (data) => {
+export const deleteRow = (id) => {
     return async (dispatch) => {
         dispatch({ type: TABLE_REQUEST_DELETE_ROW });
         try {
-            dispatch({ type: TABLE_SUCCESSFUL_DELETE_ROW, data: data });
+            dispatch({ type: TABLE_SUCCESSFUL_DELETE_ROW, id: id });
         } catch (err) {
             dispatch({ type: TABLE_UNSUCCESSFUL_DELETE_ROW });
         }
